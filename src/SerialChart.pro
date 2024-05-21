@@ -4,11 +4,13 @@
 
 
 
-QT += core gui declarative widgets serialport
-QT += webkit
-QT += webkit webkitwidgets
+# QT += core gui declarative widgets serialport
+QT += core gui widgets serialport
+# QT += webkit
+# QT += webkit webkitwidgets
 
-INCLUDEPATH = C:/Qt5/5.1.1/mingw48_32/include/QtGui
+
+#INCLUDEPATH = C:/Qt5/5.1.1/mingw48_32/include/QtGui
 
 CONFIG += qt
 CONFIG -= static
@@ -28,9 +30,7 @@ SOURCES += main.cpp \
     decodercsv.cpp \
     displaybase.cpp \
     decoderhdlc.cpp \
-    decoderbin.cpp \
-    plugin.cpp \
-    decoderplugin.cpp
+    decoderbin.cpp
 HEADERS += mainwindow.h \
     common.h \
     portbase.h \
@@ -43,9 +43,7 @@ HEADERS += mainwindow.h \
     decodercsv.h \
     displaybase.h \
     decoderhdlc.h \
-    decoderbin.h \
-    plugin.h \
-    decoderplugin.h
+    decoderbin.h
 FORMS += mainwindow.ui
 RESOURCES += resources.qrc
 OTHER_FILES += notes.txt

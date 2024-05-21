@@ -1,8 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#define APP_NAME "SerialChart"
-#define APP_VERSION "0.3.4"
+#define ORG_NAME "SHININ TECH"
+#define APP_NAME "SerialChart+"
+#define APP_VERSION "1.0.2"
 
 
 #include <QMainWindow>
@@ -11,7 +12,7 @@
 #include "displaybase.h"
 
 
-class Plugin;
+//class Plugin;
 class DecoderBase;
 
 namespace Ui {
@@ -24,16 +25,10 @@ public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    PortBase* getPort(int portID);
-    Plugin* getPlugin(){return plugin;};
-    DecoderBase* getDecoder(){return decoder;};
-    bool isPluginReady(){return pluginReady;};
-
 protected:
     void changeEvent(QEvent *e);
     void closeEvent(QCloseEvent *e);
     void showEvent(QShowEvent *e);
-
 
 
 private:
@@ -56,18 +51,15 @@ private:
     bool portValid;
     bool sendString(QString str);
 
-    Plugin* plugin;
-
-    bool pluginReady = false;
-    bool pluginLoading = false;
+	bool actionSaveAs();
+	bool actionSave();
 
 private slots:
     void on_sendButton_clicked();
     void on_actionConfiguration_toggled(bool );
 
     void on_actionChart_toggled(bool );
-    void on_actionToolbar_toggled(bool );
-    void on_actionWebView_toggled(bool arg1);
+	void on_actionToolbar_toggled(bool );
 
     void on_actionStop_triggered();
     void on_actionRun_triggered();
@@ -84,9 +76,6 @@ private slots:
     void message(const QString& text,const QString& type);
 
     void on_sendText_returnPressed();
-
-    void mainFrame_javaScriptWindowObjectCleared();
-    void mainFrame_loadFinished (bool  ok);
 };
 
 #endif // MAINWINDOW_H

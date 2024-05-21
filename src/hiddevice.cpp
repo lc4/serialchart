@@ -56,7 +56,7 @@ bool HidDevice::connect(const QString& DeviceID)   //example DeviceID: "Vid_04d8
 
 
     //Globally Unique Identifier (GUID) for HID class devices.  Windows uses GUIDs to identify things.
-    GUID InterfaceClassGuid = { 0x4d1e55b2, 0xf16f, 0x11cf, 0x88, 0xcb, 0x00, 0x11, 0x11, 0x00, 0x00, 0x30};
+	GUID InterfaceClassGuid = { 0x4d1e55b2, 0xf16f, 0x11cf, {0x88, 0xcb, 0x00, 0x11, 0x11, 0x00, 0x00, 0x30}};
 
     HDEVINFO DeviceInfoTable = INVALID_HANDLE_VALUE;
     PSP_DEVICE_INTERFACE_DATA InterfaceDataStructure = new SP_DEVICE_INTERFACE_DATA;
@@ -119,7 +119,7 @@ bool HidDevice::connect(const QString& DeviceID)   //example DeviceID: "Vid_04d8
                     DetailedInterfaceDataStructure->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA);
 
                     //First call populates "StructureSize" with the correct value
-                    SetupDiGetDeviceInterfaceDetail(DeviceInfoTable, InterfaceDataStructure, NULL, NULL, &StructureSize, NULL);
+					SetupDiGetDeviceInterfaceDetail(DeviceInfoTable, InterfaceDataStructure, NULL, 0, &StructureSize, NULL);
                     DetailedInterfaceDataStructure = (PSP_DEVICE_INTERFACE_DETAIL_DATA)(malloc(StructureSize));		//Allocate enough memory
                     if(DetailedInterfaceDataStructure == NULL)	//if null, error, couldn't allocate enough memory
                     {	//Can't really recover from this situation, just exit instead.

@@ -48,8 +48,6 @@ void DisplayBase::newPacket(DecoderBase* decoder){
             }
         }
 
-
-
         emit newDisplay(displayResult);
     }else if(display == "hex"){
         emit newDisplay(decoder->getPacketBytes().toHex());

@@ -1,3 +1,11 @@
+A modified version of SerialChart.
+- Removed script support.
+- Improved graphics update speed.
+- Lower CPU usage while listening on port.
+
+The original introduction is as follows:
+-----------
+
 SerialChart is an open source application developed by Sergiu Baluta. SerialChart is used for real-time charting of data sent via serial (RS-232) port. It supports other types of ports via plugins and WebView javascript integration. The modular design allows the motivtated coder to add new type of ports, decoders, and display filters. The basic data processing workflow is:
 
 PORT (RAW DATA FROM SERIAL/USB PORT) -> DECODER(PROCESSES DATA) -> VALUES(displayed on screen/chart)

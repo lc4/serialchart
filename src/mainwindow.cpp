@@ -1,10 +1,15 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "decoderbase.h"
-#include "plugin.h"
-#include "QWebFrame"
+//#include "plugin.h"
+//#include "QWebFrame"
+#include <QFileInfo>
 
-
+bool fileExists(QString path) {
+	QFileInfo check_file(path);
+	// check if path exists and if yes: Is it really a file and no directory?
+	return check_file.exists() && check_file.isFile();
+}
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -17,37 +22,12 @@ MainWindow::MainWindow(QWidget *parent) :
     portValid = false;
 
     setWindowTitle(APP_NAME " " APP_VERSION);
-    loadDocument(settings.value("Last Configuration").toString());
+	loadDocument(settings.value("Last Configuration").toString());
     restoreGeometry(settings.value("WINDOW_GEOMETRY").toByteArray());
     restoreState(settings.value("DOCK_LOCATIONS").toByteArray());
 
-
-    //WebView
-    QWebSettings::clearMemoryCaches(); //clear cache
-    //disable cache
-    QWebSettings::globalSettings()->setMaximumPagesInCache(0);
-    QWebSettings::globalSettings()->setObjectCacheCapacities(0, 0, 0);
-
-    QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true); //enable Inspector
-    plugin = new Plugin(this,ui->webView);
-    connect(ui->webView->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(mainFrame_javaScriptWindowObjectCleared()));
-    connect(ui->webView->page()->mainFrame(), SIGNAL(loadFinished ( bool  )), this, SLOT(mainFrame_loadFinished ( bool  )));
-    connect(plugin, SIGNAL(eval(const QString&)), ui->webView->page()->mainFrame(), SLOT(evaluateJavaScript ( const QString&)));
-
 }
 
-void MainWindow::mainFrame_javaScriptWindowObjectCleared(){
-    ui->webView->page()->mainFrame()->addToJavaScriptWindowObject("PLUGIN", plugin);
-}
-
-
-void MainWindow::mainFrame_loadFinished (bool  ok){
-    qDebug() << "mainFrame_loadFinished" << ok;
-    if(this->pluginLoading){
-        this->pluginReady = ok;
-        this->pluginLoading = false;
-    }
-}
 
 void MainWindow::showEvent(QShowEvent *e)
 {
@@ -56,16 +36,14 @@ void MainWindow::showEvent(QShowEvent *e)
     ui->actionToolbar->setChecked(ui->mainToolBar->isVisible());
     ui->actionConfiguration->setChecked(ui->dockWidgetConfiguration->isVisible());
     ui->actionChart->setChecked(ui->dockWidgetChart->isVisible());
-    ui->actionWebView->setChecked(ui->dockWidgetWebView->isVisible());
+//    ui->actionWebView->setChecked(ui->dockWidgetWebView->isVisible());
 }
-
 
 
 MainWindow::~MainWindow()
 {
-
     settings.setValue("WINDOW_GEOMETRY", saveGeometry());
-    settings.setValue("DOCK_LOCATIONS",saveState());
+	settings.setValue("DOCK_LOCATIONS", saveState());
 
     delete ui;
 }
@@ -88,6 +66,8 @@ void MainWindow::closeEvent(QCloseEvent *e)
     if(portValid) port->requestToStop();
     if(!checkDocument()) e->ignore();
 }
+
+
 
 void MainWindow::on_actionNew_triggered()
 {
@@ -118,24 +98,53 @@ void MainWindow::on_actionOpen_triggered()
 
 void MainWindow::on_actionSave_triggered()
 {
-    if(documentFilePath.isEmpty())
-        on_actionSaveAs_triggered();
-    else
-        saveDocument(documentFilePath);
+	actionSave();
 }
 
 void MainWindow::on_actionSaveAs_triggered()
 {
-    QString filePath = QFileDialog::getSaveFileName(this, tr("Save File"),
-                               documentFilePath,
-                               tr("SerialChart Configuration (*.scc);;All Files (*.*)"));
-    if(!filePath.isEmpty()) saveDocument(filePath);
+   actionSaveAs();
 }
 
-bool MainWindow::checkDocument(){
+
+
+
+/**************************************************************************************************/
+/**************************************************************************************************/
+
+bool MainWindow::actionSave()
+{
+	if(documentFilePath.isEmpty())
+		return actionSaveAs();
+	else
+		return saveDocument(documentFilePath);
+}
+
+bool MainWindow::actionSaveAs()
+{
+	QString filePath = QFileDialog::getSaveFileName(this, tr("Save File"),
+							   documentFilePath,
+							   tr("SerialChart Configuration (*.scc);;All Files (*.*)"));
+	if(!filePath.isEmpty())
+		return saveDocument(filePath);
+	return false;
+}
+
+bool MainWindow::checkDocument()
+{
     if(documentIsDirty)
-        if(QMessageBox::No == QMessageBox::warning(0,"","Current configuration was changed but not saved.\nAre you sure you want to proceed ?",QMessageBox::Yes,QMessageBox::No|QMessageBox::Default))
-            return false;
+	{
+		int ret = QMessageBox::warning(0,"",
+			"Current configuration was changed,\nSave file first?",
+			QMessageBox::Save,QMessageBox::Discard, QMessageBox::Cancel|QMessageBox::Default);
+
+		if(ret == QMessageBox::Save)
+			return actionSave();
+		else if(ret == QMessageBox::Discard)
+			return true;
+		else //if(ret == QMessageBox::Cancel)
+			return false;
+	}
     return true;
 }
 
@@ -162,17 +171,18 @@ bool MainWindow::saveDocument(const QString& filePath)
 
 bool MainWindow::loadDocument(const QString& filePath)
 {
-    bool success = true;
-    QFile file(filePath);
-    if(file.open(QIODevice::ReadOnly)){
-        QTextStream textStream(&file);
-        ui->configurationText->setPlainText(textStream.readAll());
-        updateDocumentFilePath(filePath);
-        success = true;
-    }
+	if(!fileExists(filePath))
+		return false;
 
-    if(!success) QMessageBox::critical(0,"","Could not load file: " + filePath);
-
+	bool success = false;
+	QFile file(filePath);
+	if(file.open(QIODevice::ReadOnly)){
+		QTextStream textStream(&file);
+		ui->configurationText->setPlainText(textStream.readAll());
+		updateDocumentFilePath(filePath);
+		success = true;
+	}
+	if(!success) QMessageBox::critical(0,"","Could not load file: " + filePath);
     return success;
 }
 
@@ -191,36 +201,15 @@ void MainWindow::on_configurationText_textChanged()
 
 void MainWindow::on_actionAbout_triggered()
 {
-    QMessageBox::about(0,"","SerialChart ver. " \
-        APP_VERSION \
-        "\nDeveloped by Sergiu Baluta\nwww.Starlino.com");
+	QMessageBox::about(0,"",
+		APP_NAME " ver. " APP_VERSION "\n"\
+		"By Vincent Lee\n"	\
+		"Based on SerialChart by Sergiu Baluta, www.Starlino.com");
 }
 
 void MainWindow::on_actionRun_triggered()
 {
     config->parse( ui->configurationText->toPlainText());
-
-    //webView
-    this->pluginReady = false;  //will be set by mainFrame_loadFinished
-    this->pluginLoading = false;
-
-    QString plugin_url = config->get("_setup_","plugin","about:blank").trimmed();
-    QUrl url(plugin_url);
-    if( !(
-        plugin_url.startsWith("http://",Qt::CaseInsensitive) ||
-        plugin_url.startsWith("https://",Qt::CaseInsensitive) ||
-        plugin_url.startsWith("about:",Qt::CaseInsensitive)
-    )){
-        //assume local file if no supported scheme given
-        QDir base_dir = QFileInfo(documentFilePath).dir();
-        QFileInfo fileinfo(plugin_url);
-        if(fileinfo.isRelative()) fileinfo.setFile(base_dir,plugin_url);
-        url = url.fromLocalFile(fileinfo.absoluteFilePath());
-    }
-    qDebug() << "plugin url:" << url.toString();
-    ui->webView->load(QUrl("about:blank")); //clear previous page
-    this->pluginLoading = true;
-    ui->webView->load(url);
 
     //dataText
     ui->dataText->setMaximumBlockCount(MAX(1,config->get("_setup_","width").toInt()));
@@ -240,30 +229,28 @@ void MainWindow::on_actionRun_triggered()
     display = createDisplay(this,config);
     portValid = true;
 
-
     //port signals
-    connect(port,SIGNAL(newData(const QByteArray&)),decoder,SLOT(newData(const QByteArray&)));
-    connect(port,SIGNAL(ready(int)),plugin,SLOT(slotPortReady(int)));
+	connect(port,SIGNAL(newData(QByteArray)),decoder,SLOT(newData(QByteArray)));
     connect(port,SIGNAL(stopped()),this,SLOT(portStopped()));
+	connect(port,SIGNAL(message(QString,QString)),this,SLOT(message(QString,QString)));
 
-    connect(port,SIGNAL(message(const QString&,const QString&)),this,SLOT(message(const QString&,const QString&)));
     //decoder signals
-    connect(decoder,SIGNAL(newPacket(DecoderBase*)),ui->chart,SLOT(newPacket(DecoderBase*)));
-    connect(decoder,SIGNAL(newPacket(DecoderBase*)),display,SLOT(newPacket(DecoderBase*)));
-    connect(decoder,SIGNAL(newPacket(DecoderBase*)),plugin,SLOT(slotNewPacket(DecoderBase*)));
+	connect(decoder,SIGNAL(newPacket(DecoderBase*)),ui->chart,SLOT(newPacket(DecoderBase*)));
+	connect(decoder,SIGNAL(newPacket(DecoderBase*)),display,SLOT(newPacket(DecoderBase*)));
+
     //display signals
-    connect(display,SIGNAL(newDisplay(const QString&)),ui->dataText,SLOT(appendPlainText(const QString&)));
+	connect(display,SIGNAL(newDisplay(QString)),ui->dataText,SLOT(appendPlainText(QString)));
 
     //Startup send
     QString send_run = config->get("_setup_","send_run","").trimmed();
-    if("" != send_run){
+	if("" != send_run)
+	{
         port->forceSend = true; //append to send buffer even if port is not running
         sendString(send_run);
         port->forceSend = false;
     }
 
     port->start();
-
 }
 
 void MainWindow::on_actionStop_triggered()
@@ -277,9 +264,6 @@ void MainWindow::on_actionStop_triggered()
 
     ui->actionStop->setEnabled(false);
     ui->sendButton->setEnabled(false);
-
-    this->pluginReady = false;  //will be set by mainFrame_loadFinished
-    this->pluginLoading = false;
 
     port->requestToStop();
 }
@@ -310,12 +294,6 @@ void MainWindow::on_actionConfiguration_toggled(bool b)
 }
 
 
-void MainWindow::on_actionWebView_toggled(bool b)
-{
-      ui->dockWidgetWebView->setVisible(b);
-}
-
-
 void MainWindow::on_sendButton_clicked(){
     sendString( ui->sendText->text());
 }
@@ -343,7 +321,3 @@ void MainWindow::on_sendText_returnPressed()
 {
     on_sendButton_clicked();
 }
-
-PortBase* MainWindow::getPort(int portID){
-    return portValid ? port : NULL;
- }

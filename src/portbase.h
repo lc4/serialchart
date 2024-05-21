@@ -22,23 +22,19 @@ public:
 
     bool forceSend;
 
-    //int getPortID(){ return portID ;}
-
 protected:
     Configuration* config;
     QByteArray dataBytes;
     QList<double> dataValues;
     QByteArray sendBytes;
-    QMutex sendMutex;
-    bool readyEmitted;
-    int portID;
+	QMutex sendMutex;
     MainWindow* mainwindow;
 
 signals:
     //void stopped() = 0;
     //void newData(const QByteArray&);
     //void message(const QString& text,const QString& type);
-    void ready(int portID);
+	//void ready(int portID);
 
 public slots:
     //virtual void start() = 0;
@@ -47,7 +43,6 @@ public slots:
 };
 
 PortBase* createPort(QObject *parent,Configuration* config);
-
 
 QByteArray stringLiteralUnescape(const QByteArray & data);
 

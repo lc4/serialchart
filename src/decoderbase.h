@@ -10,10 +10,9 @@ Q_OBJECT
 public:
     explicit DecoderBase(QObject *parent = 0, Configuration* config = 0);
 
-    const QByteArray& getPacketBytes(){return packetBytes;};
-    const QList<QByteArray>& getPacketParts(){return packetParts;};
-    const QList<QVariant>& getPacketValues(){return packetValues;};
-
+	const QByteArray& getPacketBytes(){return packetBytes;}
+	const QList<QByteArray>& getPacketParts(){return packetParts;}
+	const QList<QVariant>& getPacketValues(){return packetValues;}
 
 
 protected:

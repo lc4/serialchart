@@ -227,7 +227,7 @@
      <x>0</x>
      <y>0</y>
      <width>976</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -262,7 +262,6 @@
     <addaction name="separator"/>
     <addaction name="actionConfiguration"/>
     <addaction name="actionChart"/>
-    <addaction name="actionWebView"/>
     <addaction name="separator"/>
    </widget>
    <addaction name="menuFile"/>
@@ -364,8 +363,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>108</width>
-          <height>416</height>
+          <width>976</width>
+          <height>179</height>
          </rect>
         </property>
         <layout class="QFormLayout" name="formLayout">
@@ -462,63 +461,6 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QDockWidget" name="dockWidgetWebView">
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>100</width>
-     <height>100</height>
-    </size>
-   </property>
-   <property name="features">
-    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
-   </property>
-   <property name="windowTitle">
-    <string>WebView</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>8</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContentsWebView">
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <property name="rightMargin">
-      <number>0</number>
-     </property>
-     <property name="bottomMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QWebView" name="webView">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="url">
-        <url>
-         <string>about:blank</string>
-        </url>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-  </widget>
   <action name="actionOpen">
    <property name="icon">
     <iconset>
@@ -535,6 +477,9 @@
   <action name="actionExit">
    <property name="text">
     <string>E&amp;xit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
    </property>
   </action>
   <action name="actionSave">
@@ -565,6 +510,9 @@
   <action name="actionSaveAs">
    <property name="text">
     <string>Save Configuration &amp;As...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
    </property>
   </action>
   <action name="actionRun">
@@ -632,26 +580,9 @@
     <string>Toolbar</string>
    </property>
   </action>
-  <action name="actionWebView">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>WebView</string>
-   </property>
-  </action>
-  <zorder>dockWidgetWebView</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
-  <customwidget>
-   <class>QWebView</class>
-   <extends>QWidget</extends>
-   <header>QtWebKitWidgets/QWebView</header>
-  </customwidget>
   <customwidget>
    <class>Chart</class>
    <extends>QWidget</extends>

@@ -15,6 +15,7 @@ public:
 private:
     Configuration* config;
     QPixmap px;
+	QPixmap bg;
     int cursor_pos;
     QList<QPoint> prevPoints;
 signals:
